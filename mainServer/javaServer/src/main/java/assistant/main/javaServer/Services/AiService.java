@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class GroqService {
+public class AiService {
 
      private final RestClient restClient;
      private final String apiKey;
 
-     public GroqService(
+     public AiService(
              @Value("${GROQ_API_URL}") String apiUrl,
              @Value("${GROQ_API_KEY}") String apiKey
      ){

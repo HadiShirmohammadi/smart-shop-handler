@@ -29,7 +29,12 @@ async def ai_handler(message: Message, bot : Bot) -> None:
     data.add_field("user_id", str(message.from_user.id))
     data.add_field("chat_id", str(message.chat.id))
     data.add_field("message_id",str(message.message_id))
-    data.add_field("content",message.caption or message.text or "")
+    data.add_field("username",str(message.from_user.username))
+    data.add_field(
+        "content",
+        message.caption or message.text or "",
+        content_type="text/plain"
+    )
     if message.photo:
         photo = message.photo[-1]
         photo_file = await bot.download(photo.file_id)
