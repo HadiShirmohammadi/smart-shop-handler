@@ -23,13 +23,13 @@ public class AiService {
           this.apiKey = apiKey;
      }
 
-     public String sendAi(String message){
+     public String sendAi(String message, String sysPm){
           Map<String,Object> request = Map.of(
                   "model", "openai/gpt-oss-20b",
                   "messages", List.of(
                           Map.of(
                                   "role","system",
-                                  "content"," تو دستیار فروش آنلاین هستی"
+                                  "content",sysPm
                           ),
                           Map.of(
 

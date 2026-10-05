@@ -5,6 +5,7 @@ import assistant.main.javaServer.Repository.MessageRepository;
 import assistant.main.javaServer.Services.AiService;
 import assistant.main.javaServer.Services.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,7 @@ public class BotController {
             @RequestParam("message_id") Long messageId,
             @RequestParam(value = "username",required = false) String username,
             @RequestParam(value = "content", required = false) String text,
+            @RequestParam("system_prompt")String sysPm,
             @RequestPart(value = "file", required = false)MultipartFile file,
             @RequestParam("msg_type") String msgType){
         System.out.println("give file...");
@@ -47,7 +49,7 @@ public class BotController {
                 System.out.println("error in read file: " + e.getMessage());
             }
         }
-        String replyText = aiService.sendAi(text);
+        String replyText = aiService.sendAi(text,sysPm);
         System.out.println(replyText);
         Map<String,String> response = new HashMap<>();
         response.put("reply",replyText);
