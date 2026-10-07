@@ -5,6 +5,7 @@ import assistant.main.javaServer.Entities.User;
 import assistant.main.javaServer.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +28,7 @@ public class UserService {
 
         String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
-
+        user.setAdmin(false);
         return userRepository.save(user);
     }
     // Get User By username
@@ -39,6 +40,7 @@ public class UserService {
         return passwordEncoder.matches(rawPassword,hashedPassword);
     }
     // Delete User
+    @Transactional
     public Boolean deleteUser(String username){
         if (!userRepository.existsByUsername(username)){
             return false;
