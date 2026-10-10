@@ -21,13 +21,18 @@ public class UserController {
     @Autowired
     private JwtService jwtService;
 
+
     // Register User
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user){
-        User saveUser = userService.addUser(user);
-        String token = jwtService.generateToken(saveUser.getUsername(), saveUser.getAdmin());
-        AuthResponse response = new AuthResponse(token, saveUser.getUsername(), saveUser.getAdmin());
-        return ResponseEntity.ok(response);
+        try {
+            User saveUser = userService.addUser(user);
+            String token = jwtService.generateToken(saveUser.getUsername(), saveUser.getAdmin());
+            AuthResponse response = new AuthResponse(token, saveUser.getUsername(), saveUser.getAdmin());
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     // Login User
     @PostMapping("/login")
