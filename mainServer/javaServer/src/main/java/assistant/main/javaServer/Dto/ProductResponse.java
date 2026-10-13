@@ -6,6 +6,7 @@ import assistant.main.javaServer.Entities.Tag;
 import java.util.List;
 
 public class ProductResponse {
+    private Long id;
     private String name;
     private String shortDesc;
     private String longDesc;
@@ -26,6 +27,7 @@ public class ProductResponse {
     }
 
     public ProductResponse(Product p) {
+        this.id = p.getId();
         this.name = p.getName();
         this.shortDesc = p.getShortDesc();
         this.longDesc = p.getLongDesc();
@@ -36,6 +38,14 @@ public class ProductResponse {
     }
 
     // Getter / Setter
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
