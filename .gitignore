@@ -1,0 +1,22 @@
+# IntelliJ IDEA
+.idea/
+**/.idea/
+*.iml
+
+# Maven
+target/
+**/target/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment
+.env
+*.env
+
+# Logs
+*.log
+*.txt

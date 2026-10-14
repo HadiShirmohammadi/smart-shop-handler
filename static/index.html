@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>فروشگاه</title>
+<meta name="theme-color" content="#F4F6FA">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%232540C8' stroke-width='2.4'%3E%3Crect x='7' y='7' width='18' height='18'/%3E%3Crect x='7' y='7' width='18' height='18' transform='rotate(45 16 16)'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='3' fill='%232540C8'/%3E%3C/svg%3E">
+
+<!-- فونت وزیرمتن؛ اگر لود نشد، فونت‌های سیستم جایگزین می‌شوند -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<!-- قبل از رسم صفحه، تم ذخیره‌شده (یا تم سیستم) را اعمال می‌کنیم تا چشمک نزند -->
+<script>
+(function () {
+  var t = null;
+  try { t = localStorage.getItem('theme'); } catch (e) {}
+  if (t !== 'light' && t !== 'dark') {
+    t = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+
+<style>
+/* ═════════ ۱) متغیرهای رنگ: لاجوردی و زعفرانی ═════════ */
+:root {
+  color-scheme: light;
+  --bg: #F4F6FA;
+  --surface: #FFFFFF;
+  --surface-2: #EBEFF7;
+  --ink: #14193A;
+  --muted: #566086;
+  --line: #DCE1EE;
+  --accent: #2540C8;
+  --on-accent: #FFFFFF;
+  --accent-soft: #E4E9FB;
+  --sale-bg: #F6B93B;      /* زعفرانی: برچسب تخفیف */
+  --sale-ink: #2B1A00;
+  --ok: #0B7F72;
+  --danger: #B93030;
+  --on-danger: #FFFFFF;
+  --shadow: 0 1px 2px rgba(20,25,58,.06), 0 14px 30px -18px rgba(20,25,58,.25);
+  /* نقش ستاره هشت‌پر (فقط به‌عنوان ماسک استفاده می‌شود تا با تم هماهنگ شود) */
+  --tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'%3E%3Cg fill='none' stroke='black' stroke-width='1.6'%3E%3Crect x='16' y='16' width='40' height='40'/%3E%3Crect x='16' y='16' width='40' height='40' transform='rotate(45 36 36)'/%3E%3Ccircle cx='36' cy='36' r='6'/%3E%3C/g%3E%3C/svg%3E");
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0C1130;
+  --surface: #141A42;
+  --surface-2: #1B2253;
+  --ink: #EDF0FF;
+  --muted: #9BA4CF;
+  --line: #2A3366;
+  --accent: #8196FF;
+  --on-accent: #0C1130;
+  --accent-soft: #222B66;
+  --ok: #47D4C1;
+  --danger: #FF8585;
+  --on-danger: #2A0D12;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 14px 30px -18px rgba(0,0,0,.6);
+}
+
+/* ═════════ ۲) پایه ═════════ */
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+  background: var(--bg); color: var(--ink);
+  font: 400 1rem/1.9 "Vazirmatn", "Vazir", Tahoma, "Segoe UI", system-ui, sans-serif;
+}
+main { flex: 1; outline: none; }
+h1, h2, h3, p, ul, ol { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+a { color: inherit; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+img { display: block; max-width: 100%; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { width: 100%; max-width: 1180px; margin-inline: auto; padding-inline: 20px; }
+.page { padding-block: 36px 72px; }
+.page > h1 { font-size: 1.75rem; font-weight: 900; line-height: 1.5; }
+.muted { color: var(--muted); }
+.ltr { direction: ltr; unicode-bidi: plaintext; }
+.skip {
+  position: absolute; inset-inline-start: 12px; top: -64px; z-index: 100;
+  background: var(--accent); color: var(--on-accent); border: 0; border-radius: 8px; padding: 8px 14px;
+}
+.skip:focus { top: 12px; }
+.ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ═════════ ۳) دکمه‌ها ═════════ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 18px; border-radius: 10px; border: 1px solid transparent;
+  font-weight: 700; text-decoration: none; white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; border-color: var(--line); color: var(--ink); }
+.btn-ghost:hover { background: var(--surface-2); }
+.btn-danger { background: var(--danger); color: var(--on-danger); }
+.btn-quiet-danger { background: transparent; border-color: var(--line); color: var(--danger); }
+.btn-quiet-danger:hover { background: var(--surface-2); }
+.btn-sm { min-height: 38px; padding: 0 14px; }
+.btn-block { width: 100%; }
+.btn[disabled], .btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; filter: none; }
+.icon-btn {
+  display: inline-grid; place-items: center; width: 40px; height: 40px; flex: none;
+  border-radius: 10px; border: 1px solid transparent; background: transparent;
+}
+.icon-btn:hover { background: var(--surface-2); }
+.icon-btn.danger { color: var(--danger); }
+.linklike { background: none; border: 0; padding: 0; text-align: inherit; font-weight: inherit; }
+.linklike:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* ═════════ ۴) هدر ═════════ */
+.site-header {
+  position: sticky; top: 0; z-index: 40; border-bottom: 1px solid var(--line);
+  background: var(--bg); background: color-mix(in srgb, var(--bg) 88%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.hdr { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; min-height: 64px; padding-block: 8px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 1.25rem; text-decoration: none; }
+.brand svg { width: 30px; height: 30px; color: var(--accent); }
+.nav { display: flex; gap: 4px; margin-inline-end: auto; }
+.nav-link {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 10px;
+  text-decoration: none; font-weight: 500; color: var(--muted); white-space: nowrap;
+}
+.nav-link:hover { color: var(--ink); background: var(--surface-2); }
+.nav-link[aria-current="page"] { color: var(--ink); background: var(--accent-soft); font-weight: 700; }
+.badge {
+  min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; line-height: 1;
+  display: inline-grid; place-items: center; font-size: .75rem; font-weight: 700;
+  background: var(--accent); color: var(--on-accent);
+}
+.actions { display: flex; align-items: center; gap: 8px; }
+.user-chip { display: inline-flex; align-items: center; gap: 8px; padding: 0 6px; font-weight: 500; max-width: 180px; }
+.user-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.theme-switch { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.theme-switch button {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 999px; border: 0;
+  background: transparent; color: var(--muted);
+}
+.theme-switch button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+
+/* ═════════ ۵) صفحه اصلی: بخش بالایی ═════════ */
+.hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
+.hero::before {
+  content: ""; position: absolute; inset: 0; background: var(--accent); opacity: .22;
+  -webkit-mask: var(--tile) 0 0 / 72px 72px repeat; mask: var(--tile) 0 0 / 72px 72px repeat;
+}
+.hero::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to right, transparent 5%, var(--bg) 72%);
+}
+.hero > .wrap { position: relative; z-index: 1; padding-block: 64px 56px; }
+.hero h1 { font-size: clamp(2.1rem, 5.4vw, 4rem); font-weight: 900; line-height: 1.35; max-width: 15em; }
+.hero p.sub { margin-top: 14px; max-width: 34em; color: var(--muted); font-size: 1.05rem; }
+.search {
+  position: relative; margin-top: 28px; max-width: 580px; display: flex; align-items: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+}
+.search:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.search .ic { margin-inline: 14px 4px; color: var(--muted); }
+.search input { flex: 1; min-width: 0; height: 54px; border: 0; background: transparent; outline: none; padding-inline: 8px 14px; }
+.search input::placeholder { color: var(--muted); }
+
+/* ═════════ ۶) فهرست محصولات ═════════ */
+.toolbar { display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; padding-block: 22px 8px; }
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0; }
+.chip {
+  min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface); font-weight: 500; font-size: .92rem;
+}
+.chip:hover { background: var(--surface-2); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+.select-wrap { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .92rem; }
+.select-wrap select { min-height: 38px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.result-count { color: var(--muted); font-size: .92rem; padding-bottom: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding-bottom: 72px; }
+
+.card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.card:hover { border-color: var(--accent); }
+.card-media { display: block; width: 100%; aspect-ratio: 4 / 3; padding: 0; border: 0; background: var(--surface-2); overflow: hidden; }
+.card-media img, .pd-main img, .cl-img img { width: 100%; height: 100%; object-fit: cover; }
+.ph {
+  position: relative; width: 100%; height: 100%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent);
+}
+.ph::before {
+  content: ""; position: absolute; inset: 0; background: currentColor; opacity: .18;
+  -webkit-mask: var(--tile) 0 0 / 48px 48px repeat; mask: var(--tile) 0 0 / 48px 48px repeat;
+}
+.ph span { position: relative; font-size: 2.6rem; font-weight: 900; line-height: 1; }
+.cl-img .ph span { font-size: 1.4rem; }
+.card-body { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 16px; flex: 1; }
+.card-title { font-size: 1.05rem; font-weight: 700; line-height: 1.6; }
+.card-desc {
+  color: var(--muted); font-size: .9rem; line-height: 1.8;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tags li { padding: 0 10px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-size: .8rem; line-height: 1.9; }
+.card-foot { margin-top: auto; padding-top: 10px; display: flex; flex-direction: column; gap: 12px; }
+.price { display: flex; align-items: baseline; gap: 4px 10px; flex-wrap: wrap; }
+.price .now { font-size: 1.2rem; font-weight: 900; }
+.price .old { color: var(--muted); text-decoration: line-through; font-size: .88rem; }
+.price .off { padding: 0 8px; border-radius: 8px; background: var(--sale-bg); color: var(--sale-ink); font-size: .8rem; font-weight: 700; line-height: 1.9; }
+
+.stepper { display: inline-flex; align-items: center; justify-content: space-between; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--surface); }
+.stepper button { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 999px; border: 0; background: var(--surface-2); }
+.stepper button:hover { background: var(--accent-soft); }
+.stepper output { min-width: 44px; text-align: center; font-weight: 700; }
+.card .stepper { width: 100%; }
+
+.skeleton { border-radius: 16px; min-height: 340px; background: var(--surface-2); border: 1px solid var(--line); animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .55; } }
+
+.state { text-align: center; padding: 56px 16px; display: grid; justify-items: center; gap: 10px; border: 1px dashed var(--line); border-radius: 16px; background: var(--surface); }
+.state h2 { font-size: 1.2rem; font-weight: 700; }
+.state p { color: var(--muted); max-width: 32em; }
+.state .btn { margin-top: 10px; }
+
+/* ═════════ ۷) پنجره جزئیات محصول و تأیید ═════════ */
+dialog { padding: 0; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--ink); width: 100%; max-width: min(900px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; box-shadow: 0 30px 80px -20px rgba(0,0,0,.5); }
+dialog::backdrop { background: rgba(8,12,36,.6); }
+.dialog-close { position: absolute; inset-block-start: 10px; inset-inline-start: 10px; z-index: 2; background: var(--surface); border-color: var(--line); }
+.pd { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.pd-media { padding: 18px; background: var(--surface-2); display: grid; gap: 10px; align-content: start; }
+.pd-main { aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: var(--surface); }
+.pd-thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+.thumb { width: 56px; height: 56px; padding: 0; border-radius: 8px; overflow: hidden; border: 2px solid transparent; background: var(--surface); }
+.thumb.on { border-color: var(--accent); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.pd-info { padding: 28px 24px 24px; display: flex; flex-direction: column; gap: 12px; }
+.pd-info h2 { font-size: 1.5rem; font-weight: 900; line-height: 1.5; }
+.pd-info .lead { font-weight: 500; }
+.pd-info .long { color: var(--muted); white-space: pre-line; }
+.pd-buy { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); display: grid; gap: 12px; }
+.confirm { padding: 24px; display: grid; gap: 10px; min-width: min(380px, 80vw); }
+.confirm h2 { font-size: 1.15rem; font-weight: 700; }
+.confirm .row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px; }
+
+/* ═════════ ۸) فرم‌ها ═════════ */
+.auth { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); flex: 1; }
+.auth-aside { position: relative; overflow: hidden; background: var(--accent-soft); display: grid; align-content: center; padding: 48px; }
+.auth-aside::before { content: ""; position: absolute; inset: 0; background: var(--accent); opacity: .22; -webkit-mask: var(--tile) 0 0 / 72px 72px repeat; mask: var(--tile) 0 0 / 72px 72px repeat; }
+.auth-aside > div { position: relative; max-width: 24em; }
+.auth-aside h2 { font-size: 1.9rem; font-weight: 900; line-height: 1.5; }
+.auth-aside p { margin-top: 10px; color: var(--muted); }
+.auth-main { display: grid; place-content: center; padding: 40px 20px; }
+.auth-form { width: min(440px, 100%); display: grid; gap: 16px; }
+.auth-form h1 { font-size: 1.6rem; font-weight: 900; }
+.auth-form .alt { text-align: center; color: var(--muted); }
+.auth-form .alt a { color: var(--accent); font-weight: 700; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field > label { font-weight: 700; font-size: .95rem; }
+.field .hint { color: var(--muted); font-size: .85rem; }
+.field-error { color: var(--danger); font-size: .88rem; }
+.input {
+  width: 100%; min-height: 46px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
+}
+.input:hover { border-color: var(--muted); }
+.input[aria-invalid="true"] { border-color: var(--danger); }
+textarea.input { min-height: 104px; resize: vertical; }
+.input[dir="ltr"] { text-align: left; }
+.pw { position: relative; }
+.pw .input { padding-left: 48px; }
+.pw button { position: absolute; left: 3px; top: 3px; }
+.form-error { padding: 10px 14px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--danger); color: var(--danger); font-size: .92rem; }
+.tag-input { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 46px; padding: 5px 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); }
+.tag-input:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tag-input input { flex: 1; min-width: 140px; border: 0; outline: none; background: transparent; padding: 4px 6px; }
+.chips { display: contents; }
+.chips li { display: inline-flex; align-items: center; gap: 2px; padding: 0 4px 0 10px; border-radius: 999px; background: var(--accent-soft); font-size: .88rem; }
+.chips button { display: grid; place-items: center; width: 24px; height: 24px; border: 0; border-radius: 999px; background: transparent; }
+.chips button .ic { width: 14px; height: 14px; }
+
+/* ═════════ ۹) مدیریت ═════════ */
+.tabs { display: flex; gap: 6px; margin: 18px 0 28px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; text-decoration: none; color: var(--muted); font-weight: 500; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.tab:hover { color: var(--ink); }
+.tab[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
+.admin-add { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 36px; align-items: start; }
+.form-col { display: grid; gap: 16px; }
+.preview { position: sticky; top: 90px; display: grid; gap: 10px; }
+.preview > h2 { font-size: 1rem; font-weight: 700; color: var(--muted); }
+.table-tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.table-tools .input { max-width: 320px; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; min-width: 640px; }
+th, td { padding: 12px 16px; text-align: start; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: var(--surface-2); font-size: .88rem; font-weight: 700; color: var(--muted); }
+tbody tr:last-child td { border-bottom: 0; }
+.role { display: inline-block; padding: 0 10px; border-radius: 999px; font-size: .82rem; font-weight: 700; background: var(--surface-2); color: var(--muted); }
+.role.admin { background: var(--sale-bg); color: var(--sale-ink); }
+
+/* ═════════ ۱۰) سبد خرید ═════════ */
+.cart-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; margin-top: 22px; }
+.cart-lines { display: grid; gap: 12px; }
+.cart-line { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto 120px 40px; gap: 14px; align-items: center; padding: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.cl-img { width: 76px; height: 76px; border-radius: 10px; overflow: hidden; background: var(--surface-2); }
+.cl-main h3 { font-size: 1rem; font-weight: 700; line-height: 1.6; }
+.cl-main p { font-size: .88rem; }
+.cl-total { font-weight: 900; text-align: end; }
+.summary { position: sticky; top: 90px; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); display: grid; gap: 12px; }
+.summary h2 { font-size: 1.1rem; font-weight: 700; }
+.sum-row { display: flex; justify-content: space-between; gap: 12px; }
+.sum-row.total { padding-top: 12px; border-top: 1px solid var(--line); font-size: 1.15rem; font-weight: 900; }
+.sum-row.save { color: var(--ok); }
+.summary .note { font-size: .85rem; color: var(--muted); }
+
+/* ═════════ ۱۱) پیام‌ها و پایین صفحه ═════════ */
+#toasts { position: fixed; inset-inline: 0; bottom: 20px; z-index: 200; display: grid; justify-items: center; gap: 8px; pointer-events: none; padding-inline: 16px; }
+.toast { pointer-events: auto; max-width: 440px; padding: 10px 18px; border-radius: 12px; background: var(--ink); color: var(--bg); font-weight: 500; box-shadow: 0 10px 30px -10px rgba(0,0,0,.5); animation: rise .25s ease-out; }
+.toast.error { background: var(--danger); color: var(--on-danger); }
+@keyframes rise { from { transform: translateY(8px); opacity: 0; } }
+.site-footer { border-top: 1px solid var(--line); padding-block: 22px; color: var(--muted); font-size: .9rem; }
+
+/* ═════════ ۱۲) واکنش‌گرا ═════════ */
+@media (max-width: 860px) {
+  .pd, .admin-add, .cart-layout { grid-template-columns: 1fr; }
+  .preview, .summary { position: static; }
+  .auth { grid-template-columns: 1fr; }
+  .auth-aside { display: none; }
+  .hero::after { background: linear-gradient(to bottom, transparent 0%, var(--bg) 85%); }
+  .cart-line { grid-template-columns: 64px minmax(0, 1fr) auto; }
+  .cl-img { width: 64px; height: 64px; }
+  .cart-line .stepper { grid-column: 2 / 3; justify-self: start; }
+  .cl-total { grid-column: 3 / 4; grid-row: 1; }
+  .cart-line > .icon-btn { grid-column: 3 / 4; grid-row: 2; justify-self: end; }
+}
+@media (max-width: 760px) {
+  .nav { order: 3; width: 100%; overflow-x: auto; margin: 0; }
+  .actions { margin-inline-start: auto; }
+  .user-chip { display: none; }
+  .two { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+  .toast { animation: none; }
+}
+</style>
+</head>
+
+<body>
+<button class="skip" type="button" id="skip">رفتن به محتوای صفحه</button>
+<header class="site-header" id="site-header"></header>
+<main id="main" tabindex="-1"></main>
+<footer class="site-footer"><div class="wrap" id="footer-text"></div></footer>
+
+<dialog id="product-dialog" aria-labelledby="pd-title"></dialog>
+<dialog id="confirm-dialog" aria-labelledby="confirm-title"></dialog>
+<div id="toasts" aria-live="polite"></div>
+<noscript><p style="padding:24px">برای استفاده از فروشگاه باید جاوااسکریپت مرورگر فعال باشد.</p></noscript>
+
+<script>
+(() => {
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════
+   ۱) تنظیمات — اگر لازم شد فقط همین بخش را عوض کنید
+   ═══════════════════════════════════════════════════════════════ */
+const API_BASE = '';          // خالی = فرانت و بک‌اند روی یک آدرس‌اند. اگر جداست مثلاً 'http://localhost:8080'
+const STORE_NAME = 'فروشگاه'; // نام فروشگاه (در هدر و عنوان تب)
+const CURRENCY = 'تومان';
+const MIN_PASSWORD = 6;       // حداقل طول رمز در فرم ثبت‌نام
+
+/* ═══════════════════════════════════════════════════════════════
+   ۲) ابزارهای کوچک
+   ═══════════════════════════════════════════════════════════════ */
+const $ = (sel, root = document) => root.querySelector(sel);
+
+/* ساخت امن عنصر HTML: متن‌ها با createTextNode گذاشته می‌شوند، پس محتوای محصول/کاربر هرگز به‌عنوان HTML اجرا نمی‌شود */
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v === false || v == null) continue;
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (v === true) el.setAttribute(k, '');
+    else el.setAttribute(k, v);
+  }
+  for (const kid of kids.flat(Infinity)) {
+    if (kid == null || kid === false) continue;
+    el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+
+/* آیکن‌ها (ثابت‌های داخل خود فایل هستند، نه داده‌ی کاربر) */
+const ICONS = {
+  sun: '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>',
+  moon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  cart: '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>',
+  user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  minus: '<path d="M5 12h14"/>',
+  trash: '<path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>',
+  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff: '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24M1 1l22 22"/>',
+  x: '<path d="M18 6L6 18M6 6l12 12"/>',
+  box: '<path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/>',
+  store: '<path d="M3 9l1-5h16l1 5M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M5 21V12m14 9V12M3 21h18"/>',
+};
+function icon(name) {
+  const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  s.setAttribute('viewBox', '0 0 24 24');
+  s.setAttribute('class', 'ic');
+  s.setAttribute('aria-hidden', 'true');
+  s.innerHTML = ICONS[name] || '';
+  return s;
+}
+function logo() {
+  const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  s.setAttribute('viewBox', '0 0 32 32');
+  s.setAttribute('aria-hidden', 'true');
+  s.innerHTML = '<g fill="none" stroke="currentColor" stroke-width="2.2"><rect x="7" y="7" width="18" height="18"/><rect x="7" y="7" width="18" height="18" transform="rotate(45 16 16)"/></g><circle cx="16" cy="16" r="3" fill="currentColor"/>';
+  return s;
+}
+
+/* اعداد: نمایش فارسی، ورودی فارسی/عربی/انگلیسی */
+const faNum = n => Number(n).toLocaleString('fa-IR');
+const money = n => faNum(n) + ' ' + CURRENCY;
+const toEn = s => String(s ?? '')
+  .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+  .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+/* رشته → عدد صحیح؛ اگر عدد صحیح نبود NaN برمی‌گرداند */
+const toInt = s => {
+  const e = toEn(s).replace(/[,٬،\s]/g, '');
+  return /^\d+$/.test(e) ? parseInt(e, 10) : NaN;
+};
+/* یکسان‌سازی متن برای جست‌وجو (ی/ک عربی، اعراب، نیم‌فاصله، حروف بزرگ و کوچک) */
+const norm = s => toEn(s).toLowerCase()
+  .replace(/ي/g, 'ی').replace(/ك/g, 'ک')
+  .replace(/[\u064B-\u065F\u0640\u200c]/g, '');
+
+/* ذخیره‌سازی مرورگر (اگر مرورگر اجازه نداد، بی‌صدا نادیده گرفته می‌شود) */
+const LS = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch { /* ignore */ } },
+  del(k) { try { localStorage.removeItem(k); } catch { /* ignore */ } },
+};
+
+/* خواندن محتوای JWT (فقط برای فهمیدن زمان انقضا و نام کاربری؛ اعتبار را سرور بررسی می‌کند) */
+function jwtPayload(t) {
+  try {
+    const b = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const bin = atob(b + '='.repeat((4 - (b.length % 4)) % 4));
+    return JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))));
+  } catch { return null; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ۳) وضعیت برنامه
+   ═══════════════════════════════════════════════════════════════ */
+const state = {
+  token: null,
+  user: null,                 // { username, admin, firstname, lastname }
+  products: [],
+  productsStatus: 'idle',     // idle | loading | ok | error
+  productsError: '',
+  cart: { items: [] },
+  users: null,                // فهرست کاربران (فقط مدیر)
+  next: null,                 // مسیری که بعد از ورود باید به آن برگردیم
+};
+const filters = { q: '', tag: '', sort: 'new' };
+let pageSub = null;           // تابعی که بخش‌های پویای صفحه‌ی فعلی را دوباره می‌کشد
+let modalSub = null;          // همان کار برای پنجره‌ی جزئیات محصول
+const busy = new Set();       // محصولاتی که درخواست سبدشان در جریان است
+
+/* ═══════════════════════════════════════════════════════════════
+   ۴) ارتباط با سرور
+   ═══════════════════════════════════════════════════════════════ */
+class ApiError extends Error {
+  constructor(message, status) { super(message); this.status = status; }
+}
+/* پیام‌های انگلیسی سرور → فارسی */
+const MESSAGES = {
+  'Username already exists': 'این نام کاربری قبلاً ثبت شده است.',
+  'User password or username incorrect!!': 'نام کاربری یا رمز عبور اشتباه است.',
+  "user doesn't have access": 'شما دسترسی مدیر ندارید.',
+  'This user is not an admin.': 'شما دسترسی مدیر ندارید.',
+  'User not found': 'کاربر پیدا نشد.',
+  'Product not found': 'محصول پیدا نشد.',
+};
+
+async function api(path, { method = 'GET', body, auth = true } = {}) {
+  const headers = {};
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  if (auth && state.token) headers['Authorization'] = 'Bearer ' + state.token;
+
+  let res;
+  try {
+    res = await fetch(API_BASE + path, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
+  } catch {
+    throw new ApiError('ارتباط با سرور برقرار نشد. از روشن بودن سرور مطمئن شوید.', 0);
+  }
+
+  const raw = await res.text();
+  let data = raw;
+  try { data = raw ? JSON.parse(raw) : null; } catch { /* متن ساده است */ }
+  if (res.ok) return data;
+
+  /* توکن منقضی/نامعتبر: Spring Security معمولاً ۴۰۳ با بدنه‌ی خالی برمی‌گرداند */
+  if (auth && state.token && (res.status === 401 || (res.status === 403 && !raw))) {
+    endSession();
+    toast('نشست شما تمام شد؛ دوباره وارد شوید.', 'error');
+    state.next = currentPath();
+    location.hash = '#/login';
+    throw new ApiError('نشست شما تمام شد.', res.status);
+  }
+  const serverMsg = typeof data === 'string' ? data : (data && (data.message || data.error)) || '';
+  let msg = MESSAGES[serverMsg] || '';
+  if (!msg && res.status >= 500) msg = 'خطای داخلی سرور. کمی بعد دوباره تلاش کنید.';
+  throw new ApiError(msg || serverMsg || 'خطای ناشناخته (' + faNum(res.status) + ')', res.status);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ۵) تبدیل داده‌های سرور به شکل مناسب نمایش
+   ═══════════════════════════════════════════════════════════════ */
+/* فیلد images در بک‌اند یک String است؛ اگر چند لینک با ویرگول/فاصله داشته باشد جدا می‌کنیم. فقط آدرس‌های http(s)، نسبی و data:image پذیرفته می‌شود */
+const splitImages = s => {
+  s = String(s || '').trim();
+  if (/^data:image\//i.test(s)) return [s];
+  return s.split(/[,\s،]+/).filter(u => /^(https?:\/\/|\/)/i.test(u));
+};
+const normProduct = p => ({
+  id: p.id ?? null,
+  name: p.name || '',
+  shortDesc: p.shortDesc || '',
+  longDesc: p.longDesc || '',
+  price: Number(p.price) || 0,
+  discount: Math.min(100, Math.max(0, Number(p.discount) || 0)),
+  images: splitImages(p.images),
+  tags: (p.tags || []).map(t => (typeof t === 'string' ? t : t && t.name)).filter(Boolean),
+});
+/* قیمت نهایی؛ تخفیف «درصد» فرض شده. اگر تخفیف شما مبلغ ثابت است این خط را به
+   Math.max(0, p.price - p.discount) تغییر دهید (و در فرم مدیر برچسب «درصد» را هم عوض کنید) */
+const finalPrice = p => Math.round(p.price * (100 - p.discount) / 100);
+
+function normCart(c) {
+  const items = ((c && c.items) || []).map(it => {
+    const pr = it.product || {};   // اگر سرور به‌روز نشده باشد، شکل قدیمی را هم تحمل می‌کنیم
+    return {
+      productId: it.productId ?? pr.id ?? null,
+      name: it.name ?? pr.name ?? '',
+      images: splitImages(it.images ?? pr.images),
+      price: Number(pr.price ?? it.price) || 0,
+      discount: Math.min(100, Math.max(0, Number(pr.discount ?? it.discount) || 0)),
+      quantity: Number(it.quantity) || 0,
+    };
+  }).filter(it => it.quantity > 0);
+  return { items };
+}
+const cartQty = id => (state.cart.items.find(i => i.productId === id) || {}).quantity || 0;
+const cartCount = () => state.cart.items.reduce((n, i) => n + i.quantity, 0);
+
+/* ═══════════════════════════════════════════════════════════════
+   ۶) نشست کاربر (ورود / خروج)
+   ═══════════════════════════════════════════════════════════════ */
+function restoreSession() {
+  const t = LS.get('token');
+  const p = t && jwtPayload(t);
+  if (p && p.exp * 1000 > Date.now()) {
+    state.token = t;
+    state.user = { username: p.sub || '', admin: !!p.isAdmin, firstname: '', lastname: '' };
+  } else {
+    LS.del('token');
+  }
+}
+async function startSession(res) {
+  state.token = res.token;
+  state.user = { username: res.username, admin: !!(res.admin ?? res.isAdmin), firstname: '', lastname: '' };
+  LS.set('token', res.token);
+  await Promise.all([loadCart(), refreshProfile()]);
+  renderHeader();
+}
+function endSession() {
+  state.token = null; state.user = null; state.cart = { items: [] }; state.users = null;
+  LS.del('token');
+  renderHeader();
+}
+async function logout() {
+  endSession();
+  toast('از حساب خود خارج شدید.');
+  if (location.hash === '' || location.hash === '#/') route(); else location.hash = '#/';
+}
+async function refreshProfile() {
+  try {
+    const p = await api('/auth/profile');
+    state.user = { ...state.user, firstname: p.firstname || '', lastname: p.lastname || '', admin: !!(p.admin ?? p.isAdmin ?? state.user.admin) };
+    renderHeader();
+  } catch { /* نام کاربری برای نمایش کافی است */ }
+}
+async function loadCart() {
+  if (!state.token) { state.cart = { items: [] }; return; }
+  try { state.cart = normCart(await api('/cart/get')); }
+  catch { state.cart = { items: [] }; }
+}
+async function loadProducts() {
+  state.productsStatus = 'loading';
+  pageSub && pageSub();
+  try {
+    const data = await api('/product/products', { auth: false });
+    state.products = (Array.isArray(data) ? data : []).map(normProduct);
+    state.productsStatus = 'ok';
+  } catch (e) {
+    state.productsStatus = 'error';
+    state.productsError = e.message;
+  }
+  pageSub && pageSub();
+}
+
+/* تغییر تعداد یک محصول در سبد: delta مثبت = افزودن، منفی = کم کردن */
+async function setCart(productId, delta) {
+  if (!state.token) { goLogin('برای استفاده از سبد خرید، وارد حساب خود شوید.'); return; }
+  if (productId == null) {
+    toast('شناسه‌ی محصول از سرور نیامده؛ فایل ProductResponse.java را مطابق راهنما به‌روز کنید.', 'error');
+    return;
+  }
+  if (busy.has(productId)) return;
+  busy.add(productId);
+  try {
+    state.cart = normCart(await api('/cart/items', { method: 'POST', body: { productId, quantity: delta } }));
+    notifyCart();
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    busy.delete(productId);
+  }
+}
+function goLogin(msg) {
+  state.next = currentPath();
+  if (msg) toast(msg);
+  location.hash = '#/login';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ۷) رابط‌های مشترک: پیام، تأیید، حفظ فوکوس
+   ═══════════════════════════════════════════════════════════════ */
+function toast(msg, kind = '') {
+  const t = h('div', { class: 'toast ' + kind, role: kind === 'error' ? 'alert' : null }, msg);
+  $('#toasts').append(t);
+  setTimeout(() => t.remove(), 4500);
+}
+function askConfirm({ title, text, ok = 'تأیید', danger = false }) {
+  const dlg = $('#confirm-dialog');
+  return new Promise(resolve => {
+    const onCancel = () => resolve(false);                 // کلید Esc
+    const done = v => { dlg.removeEventListener('cancel', onCancel); dlg.close(); resolve(v); };
+    dlg.addEventListener('cancel', onCancel, { once: true });
+    dlg.replaceChildren(h('div', { class: 'confirm' },
+      h('h2', { id: 'confirm-title' }, title),
+      h('p', { class: 'muted' }, text),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => done(false) }, 'انصراف'),
+        h('button', { class: 'btn ' + (danger ? 'btn-danger' : 'btn-primary'), type: 'button', onclick: () => done(true) }, ok))));
+    dlg.showModal();
+  });
+}
+/* بعد از هر بازرسم، فوکوس کیبورد را به دکمه‌ی مشابه برمی‌گردانیم (با data-fk) */
+function keepFocus(fn) {
+  const a = document.activeElement;
+  const fk = a && a.dataset && a.dataset.fk;
+  fn();
+  if (!fk) return;
+  const el = $('[data-fk="' + fk + '"]') || $('[data-fk="' + fk.replace(/-(dec|rm)$/, '-inc') + '"]');
+  if (el) el.focus();
+}
+function notifyCart() {
+  keepFocus(() => { renderHeader(); pageSub && pageSub(); modalSub && modalSub(); });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ۸) تم روشن / تاریک
+   ═══════════════════════════════════════════════════════════════ */
+function currentTheme() { return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'; }
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  LS.set('theme', t);
+  const meta = $('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', t === 'dark' ? '#0C1130' : '#F4F6FA');
+  keepFocus(renderHeader);
+}
+function themeSwitch() {
+  const cur = currentTheme();
+  const btn = (t, ic, label) => h('button', {
+    type: 'button', title: label, 'aria-label': label, 'aria-pressed': String(cur === t),
+    'data-fk': 'theme-' + t, onclick: () => setTheme(t),
+  }, icon(ic));
+  return h('div', { class: 'theme-switch', role: 'group', 'aria-label': 'انتخاب تم' },
+    btn('light', 'sun', 'تم روشن'), btn('dark', 'moon', 'تم تاریک'));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ۹) هدر
+   ═══════════════════════════════════════════════════════════════ */
+function currentPath() { return (location.hash.replace(/^#/, '') || '/').split('?')[0]; }
+
+function renderHeader() {
+  const path = currentPath();
+  const link = (href, label, ic, extra) => h('a', {
+    class: 'nav-link', href: '#' + href,
+    'aria-current': (href === '/' ? path === '/' : path.startsWith(href)) ? 'page' : null,
+  }, icon(ic), h('span', {}, label), extra);
+
+  const count = cartCount();
+  const nav = h('nav', { class: 'nav', 'aria-label': 'منوی اصلی' },
+    link('/', 'محصولات', 'store'),
+    link('/cart', 'سبد خرید', 'cart', count > 0 ? h('span', { class: 'badge', 'aria-label': faNum(count) + ' کالا' }, faNum(count)) : null),
+    state.user && state.user.admin ? link('/admin', 'مدیریت', 'box') : null);
+
+  const displayName = state.user ? (((state.user.firstname || '') + ' ' + (state.user.lastname || '')).trim() || state.user.username) : '';
+  const auth = state.user
+    ? [h('span', { class: 'user-chip' }, icon('user'), h('span', {}, displayName)),
+       h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: logout }, icon('logout'), 'خروج')]
+    : [h('a', { class: 'btn btn-ghost btn-sm', href: '#/login' }, 'ورود'),
+       h('a', { class: 'btn btn-primary btn-sm', href: '#/register' }, 'ثبت‌نام')];
+
+  $('#site-header').replaceChildren(h('div', { class: 'wrap hdr' },
+    h('a', { class: 'brand', href: '#/', 'aria-label': STORE_NAME }, logo(), STORE_NAME),
+    nav,
+    h('div', { class: 'actions' }, themeSwitch(), auth)));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ۱۰) اجزای مشترک نمایش محصول
+   ═══════════════════════════════════════════════════════════════ */
+function placeholder(p) {
+  return h('div', { class: 'ph', 'aria-hidden': 'true' }, h('span', {}, (p.name || '؟').trim().charAt(0)));
+}
+function img(src, p, alt = '') {
+  const i = h('img', { src, alt, loading: 'lazy', decoding: 'async' });
+  i.addEventListener('error', () => i.replaceWith(placeholder(p)));   // لینک خراب → جایگزین
+  return i;
+}
+function priceBlock(p) {
+  const fin = finalPrice(p);
+  return h('div', { class: 'price' },
+    h('span', { class: 'now' }, money(fin)),
+    p.discount > 0 ? h('span', { class: 'old' }, faNum(p.price)) : null,
+    p.discount > 0 ? h('span', { class: 'off' }, faNum(p.discount) + '٪ تخفیف') : null);
+}
+function stepper(id, qty, ctx) {
+  return h('div', { class: 'stepper', role: 'group', 'aria-label': 'تعداد در سبد' },
+    h('button', { type: 'button', 'aria-label': 'یکی بیشتر', 'data-fk': ctx + '-' + id + '-inc', onclick: () => setCart(id, 1) }, icon('plus')),
+    h('output', {}, faNum(qty)),
+    h('button', { type: 'button', 'aria-label': 'یکی کمتر', 'data-fk': ctx + '-' + id + '-dec', onclick: () => setCart(id, -1) }, icon('minus')));
+}
+/* اگر محصول در سبد نیست دکمه‌ی «افزودن»، وگرنه شمارنده */
+function cartControl(p, ctx) {
+  const q = cartQty(p.id);
+  if (q > 0) return stepper(p.id, q, ctx);
+  return h('button', { class: 'btn btn-primary btn-block', type: 'button', 'data-fk': ctx + '-' + p.id + '-inc', onclick: () => setCart(p.id, 1) },
+    icon('plus'), 'افزودن به سبد');
+}
+function productCard(p, { preview = false } = {}) {
+  const open = () => openProduct(p);
+  const card = h('article', { class: 'card' },
+    h('button', { class: 'card-media', type: 'button', 'aria-label': 'جزئیات ' + p.name, onclick: open },
+      p.images[0] ? img(p.images[0], p) : placeholder(p)),
+    h('div', { class: 'card-body' },
+      h('h3', { class: 'card-title' }, h('button', { class: 'linklike', type: 'button', onclick: open }, p.name || 'نام محصول')),
+      p.shortDesc ? h('p', { class: 'card-desc' }, p.shortDesc) : null,
+      p.tags.length ? h('ul', { class: 'tags' }, p.tags.slice(0, 3).map(t => h('li', {}, t))) : null,
+      h('div', { class: 'card-foot' }, priceBlock(p), cartControl(p, 'g'))));
+  if (preview) card.setAttribute('inert', '');   // پیش‌نمایش فقط نمایشی است
+  return card;
+}
+function openProduct(p) {
+  const dlg = $('#product-dialog');
+  let current = 0;
+  const draw = () => {
+    const live = p.id != null ? (state.products.find(x => x.id === p.id) || p) : p;
+    dlg.replaceChildren(
+      h('button', { class: 'icon-btn dialog-close', type: 'button', 'aria-label': 'بستن', onclick: () => dlg.close() }, icon('x')),
+      h('div', { class: 'pd' },
+        h('div', { class: 'pd-media' },
+          h('div', { class: 'pd-main' }, live.images[current] ? img(live.images[current], live, live.name) : placeholder(live)),
+          live.images.length > 1 ? h('div', { class: 'pd-thumbs' }, live.images.map((src, i) =>
+            h('button', { type: 'button', class: 'thumb' + (i === current ? ' on' : ''), 'aria-label': 'تصویر ' + faNum(i + 1), onclick: () => { current = i; draw(); } }, img(src, live)))) : null),
+        h('div', { class: 'pd-info' },
+          h('h2', { id: 'pd-title' }, live.name),
+          live.tags.length ? h('ul', { class: 'tags' }, live.tags.map(t => h('li', {}, t))) : null,
+          live.shortDesc ? h('p', { class: 'lead' }, live.shortDesc) : null,
+          live.longDesc ? h('p', { class: 'long' }, live.longDesc) : null,
+          h('div', { class: 'pd-buy' }, priceBlock(live), cartControl(live, 'm')))));
+  };
+  draw();
+  modalSub = () => keepFocus(draw);
+  dlg.addEventListener('close', () => { modalSub = null; }, { once: true });
+  dlg.showModal();
+}
+function emptyState({ title, text, action }) {
+  return h('div', { class: 'state' }, h('h2', {}, title), text ? h('p', {}, text) : null, action || null);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ۱۱) صفحه‌ی اصلی
+   ═══════════════════════════════════════════════════════════════ */
+function visibleProducts() {
+  const q = norm(filters.q.trim());
+  const list = state.products.filter(p => {
+    if (filters.tag && !p.tags.includes(filters.tag)) return false;
+    return !q || norm([p.name, p.shortDesc, ...p.tags].join(' ')).includes(q);
+  });
+  const sorters = {
+    new: (a, b) => (b.id ?? 0) - (a.id ?? 0),
+    cheap: (a, b) => finalPrice(a) - finalPrice(b),
+    pricey: (a, b) => finalPrice(b) - finalPrice(a),
+    discount: (a, b) => b.discount - a.discount,
+  };
+  return list.sort(sorters[filters.sort] || sorters.new);
+}
+
+function viewHome() {
+  const grid = h('div', { class: 'grid' });
+  const chips = h('div', { class: 'chip-row', role: 'group', 'aria-label': 'فیلتر بر اساس برچسب' });
+  const count = h('p', { class: 'result-count', role: 'status' });
+
+  const search = h('input', { type: 'search', id: 'q', value: filters.q, autocomplete: 'off', placeholder: 'نام محصول یا برچسب را بنویسید…', 'aria-label': 'جست‌وجوی محصول' });
+  search.addEventListener('input', () => { filters.q = search.value; drawGrid(); });
+
+  const sort = h('select', { id: 'sort', 'aria-label': 'مرتب‌سازی' },
+    [['new', 'جدیدترین'], ['cheap', 'ارزان‌ترین'], ['pricey', 'گران‌ترین'], ['discount', 'بیشترین تخفیف']]
+      .map(([v, t]) => h('option', { value: v, selected: filters.sort === v }, t)));
+  sort.addEventListener('change', () => { filters.sort = sort.value; drawGrid(); });
+
+  function drawChips() {
+    const freq = new Map();
+    state.products.forEach(p => p.tags.forEach(t => freq.set(t, (freq.get(t) || 0) + 1)));
+    const tags = [...freq.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12).map(e => e[0]);
+    chips.replaceChildren(
+      h('button', { class: 'chip', type: 'button', 'aria-pressed': String(!filters.tag), onclick: () => { filters.tag = ''; drawChips(); drawGrid(); } }, 'همه'),
+      ...tags.map(t => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(filters.tag === t), onclick: () => { filters.tag = filters.tag === t ? '' : t; drawChips(); drawGrid(); } }, t)));
+  }
+  function drawGrid() {
+    const st = state.productsStatus;
+    if (st === 'idle' || st === 'loading') {
+      count.textContent = '';
+      grid.replaceChildren(...Array.from({ length: 8 }, () => h('div', { class: 'skeleton' })));
+      return;
+    }
+    if (st === 'error') {
+      count.textContent = '';
+      grid.replaceChildren(h('div', { style: 'grid-column:1/-1' }, emptyState({
+        title: 'محصولات بارگذاری نشد', text: state.productsError,
+        action: h('button', { class: 'btn btn-primary', type: 'button', onclick: loadProducts }, 'تلاش دوباره'),
+      })));
+      return;
+    }
+    if (!state.products.length) {
+      count.textContent = '';
+      grid.replaceChildren(h('div', { style: 'grid-column:1/-1' }, emptyState({
+        title: 'هنوز محصولی ثبت نشده',
+        text: state.user && state.user.admin ? 'از بخش مدیریت اولین محصول را اضافه کنید.' : 'کمی بعد دوباره سر بزنید.',
+        action: state.user && state.user.admin ? h('a', { class: 'btn btn-primary', href: '#/admin/add' }, 'افزودن محصول') : null,
+      })));
+      return;
+    }
+    const list = visibleProducts();
+    count.textContent = faNum(list.length) + ' محصول';
+    if (!list.length) {
+      grid.replaceChildren(h('div', { style: 'grid-column:1/-1' }, emptyState({
+        title: 'محصولی پیدا نشد', text: 'عبارت دیگری را امتحان کنید یا فیلترها را بردارید.',
+        action: h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => { filters.q = ''; filters.tag = ''; search.value = ''; drawChips(); drawGrid(); } }, 'پاک کردن فیلترها'),
+      })));
+      return;
+    }
+    grid.replaceChildren(...list.map(p => productCard(p)));
+  }
+  pageSub = () => { drawChips(); drawGrid(); };
+  pageSub();
+
+  return h('div', {},
+    h('section', { class: 'hero' }, h('div', { class: 'wrap' },
+      h('h1', {}, 'هر چه لازم دارید، همین‌جاست'),
+      h('p', { class: 'sub' }, 'محصول را جست‌وجو کنید، به سبد خرید اضافه کنید و هر وقت خواستید به سبدتان برگردید.'),
+      h('label', { class: 'search' }, icon('search'), search))),
+    h('div', { class: 'wrap' },
+      h('div', { class: 'toolbar' }, chips, h('label', { class: 'select-wrap' }, 'مرتب‌سازی', sort)),
+      count, grid));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ۱۲) فرم‌ها: ساخت فیلد، ارسال، ورود، ثبت‌نام
+   ═══════════════════════════════════════════════════════════════ */
+function field({ id, label, type = 'text', ltr = false, autocomplete, placeholder, hint, rows, inputmode, value = '', password = false }) {
+  const attrs = { id, name: id, placeholder, autocomplete, inputmode, class: 'input', dir: ltr ? 'ltr' : null, 'aria-describedby': id + '-err' + (hint ? ' ' + id + '-hint' : '') };
+  const input = rows ? h('textarea', { ...attrs, rows }, value) : h('input', { ...attrs, type, value });
+  const err = h('p', { class: 'field-error', id: id + '-err', role: 'alert', hidden: true });
+  let control = input;
+  if (password) {
+    const eye = h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'نمایش رمز عبور', onclick: () => {
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      eye.replaceChildren(icon(show ? 'eyeOff' : 'eye'));
+      eye.setAttribute('aria-label', show ? 'پنهان کردن رمز عبور' : 'نمایش رمز عبور');
+    } }, icon('eye'));
+    control = h('div', { class: 'pw' }, input, eye);
+  }
+  return {
+    input, err,
+    root: h('div', { class: 'field' }, h('label', { for: id }, label), control, hint ? h('p', { class: 'hint', id: id + '-hint' }, hint) : null, err),
+    setError(msg) {
+      err.textContent = msg || '';
+      err.hidden = !msg;
+      if (msg) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid');
+    },
+  };
+}
+/* اجرای یک عملیات async با غیرفعال کردن دکمه و نمایش خطای فرم */
+async function submitting(btn, errBox, fn) {
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = 'لطفاً صبر کنید…'; errBox.hidden = true;
+  try { await fn(); }
+  catch (e) { errBox.textContent = e.message; errBox.hidden = false; }
+  finally { btn.disabled = false; btn.textContent = label; }
+}
+function redirectToNext() {
+  const next = state.next || '/';
+  state.next = null;
+  location.hash = '#' + next;
+}
+function authLayout(asideTitle, asideText, form) {
+  return h('div', { class: 'auth' },
+    h('div', { class: 'auth-aside' }, h('div', {}, h('h2', {}, asideTitle), h('p', {}, asideText))),
+    h('div', { class: 'auth-main' }, form));
+}
+
+function viewLogin() {
+  if (state.token) { setTimeout(() => { location.hash = '#/'; }); return h('div'); }
+  const f = {
+    username: field({ id: 'username', label: 'نام کاربری', ltr: true, autocomplete: 'username' }),
+    password: field({ id: 'password', label: 'رمز عبور', type: 'password', ltr: true, autocomplete: 'current-password', password: true }),
+  };
+  const formErr = h('p', { class: 'form-error', role: 'alert', hidden: true });
+  const btn = h('button', { class: 'btn btn-primary btn-block', type: 'submit' }, 'ورود');
+  const form = h('form', { class: 'auth-form', novalidate: true, onsubmit: async e => {
+    e.preventDefault();
+    const username = f.username.input.value.trim(), password = f.password.input.value;
+    f.username.setError(username ? '' : 'نام کاربری را وارد کنید.');
+    f.password.setError(password ? '' : 'رمز عبور را وارد کنید.');
+    if (!username || !password) { (username ? f.password : f.username).input.focus(); return; }
+    await submitting(btn, formErr, async () => {
+      await startSession(await api('/auth/login', { method: 'POST', body: { username, password }, auth: false }));
+      toast('خوش آمدید!');
+      redirectToNext();
+    });
+  } },
+    h('h1', {}, 'ورود به حساب'), formErr, f.username.root, f.password.root, btn,
+    h('p', { class: 'alt' }, 'حساب ندارید؟ ', h('a', { href: '#/register' }, 'ثبت‌نام کنید')));
+  return authLayout('دوباره خوش آمدید', 'با ورود، سبد خرید شما نگه داشته می‌شود و می‌توانید هر زمان ادامه دهید.', form);
+}
+
+function viewRegister() {
+  if (state.token) { setTimeout(() => { location.hash = '#/'; }); return h('div'); }
+  const f = {
+    firstname: field({ id: 'firstname', label: 'نام', autocomplete: 'given-name' }),
+    lastname: field({ id: 'lastname', label: 'نام خانوادگی', autocomplete: 'family-name' }),
+    username: field({ id: 'username', label: 'نام کاربری', ltr: true, autocomplete: 'username', hint: 'حداقل ۳ نویسه، بدون فاصله' }),
+    phone: field({ id: 'phone', label: 'شماره تلفن', type: 'tel', ltr: true, autocomplete: 'tel', inputmode: 'tel' }),
+    address: field({ id: 'address', label: 'آدرس', rows: 3, autocomplete: 'street-address' }),
+    password: field({ id: 'password', label: 'رمز عبور', type: 'password', ltr: true, autocomplete: 'new-password', password: true, hint: 'حداقل ' + faNum(MIN_PASSWORD) + ' نویسه' }),
+    confirm: field({ id: 'confirm', label: 'تکرار رمز عبور', type: 'password', ltr: true, autocomplete: 'new-password', password: true }),
+  };
+  const formErr = h('p', { class: 'form-error', role: 'alert', hidden: true });
+  const btn = h('button', { class: 'btn btn-primary btn-block', type: 'submit' }, 'ساخت حساب');
+
+  const form = h('form', { class: 'auth-form', novalidate: true, onsubmit: async e => {
+    e.preventDefault();
+    const v = {
+      firstname: f.firstname.input.value.trim(), lastname: f.lastname.input.value.trim(),
+      username: f.username.input.value.trim(), phone: toEn(f.phone.input.value).trim(),
+      address: f.address.input.value.trim(), password: f.password.input.value, confirm: f.confirm.input.value,
+    };
+    const errors = {
+      firstname: v.firstname ? '' : 'نام را وارد کنید.',
+      lastname: v.lastname ? '' : 'نام خانوادگی را وارد کنید.',
+      username: v.username.length < 3 || /\s/.test(v.username) ? 'نام کاربری باید حداقل ۳ نویسه و بدون فاصله باشد.' : '',
+      phone: /^[+\d][\d\s-]{6,}$/.test(v.phone) ? '' : 'شماره تلفن معتبر وارد کنید.',
+      address: v.address ? '' : 'آدرس را وارد کنید.',
+      password: v.password.length >= MIN_PASSWORD ? '' : 'رمز عبور باید حداقل ' + faNum(MIN_PASSWORD) + ' نویسه باشد.',
+      confirm: v.password === v.confirm ? '' : 'تکرار رمز عبور با رمز اصلی یکسان نیست.',
+    };
+    let first = null;
+    for (const k of Object.keys(errors)) { f[k].setError(errors[k]); if (errors[k] && !first) first = k; }
+    if (first) { f[first].input.focus(); return; }
+    await submitting(btn, formErr, async () => {
+      await startSession(await api('/auth/register', { method: 'POST', auth: false,
+        body: { firstname: v.firstname, lastname: v.lastname, username: v.username, password: v.password, phone: v.phone, address: v.address } }));
+      toast('حساب شما ساخته شد.');
+      redirectToNext();
+    });
+  } },
+    h('h1', {}, 'ساخت حساب کاربری'), formErr,
+    h('div', { class: 'two' }, f.firstname.root, f.lastname.root),
+    f.username.root, f.phone.root, f.address.root,
+    h('div', { class: 'two' }, f.password.root, f.confirm.root),
+    btn,
+    h('p', { class: 'alt' }, 'قبلاً ثبت‌نام کرده‌اید؟ ', h('a', { href: '#/login' }, 'وارد شوید')));
+  return authLayout('حساب بسازید، سبدتان را نگه دارید', 'ثبت‌نام چند ثانیه بیشتر طول نمی‌کشد و بعد از آن مستقیم وارد می‌شوید.', form);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ۱۳) سبد خرید
+   ═══════════════════════════════════════════════════════════════ */
+function viewCart() {
+  const content = h('div');
+  const root = h('div', { class: 'wrap page' }, h('h1', {}, 'سبد خرید'), content);
+
+  const line = it => {
+    const unit = finalPrice(it);
+    return h('li', { class: 'cart-line' },
+      h('div', { class: 'cl-img' }, it.images[0] ? img(it.images[0], it) : placeholder(it)),
+      h('div', { class: 'cl-main' }, h('h3', {}, it.name),
+        h('p', { class: 'muted' }, money(unit) + (it.discount > 0 ? ' (با ' + faNum(it.discount) + '٪ تخفیف)' : ''))),
+      stepper(it.productId, it.quantity, 'c'),
+      h('div', { class: 'cl-total' }, money(unit * it.quantity)),
+      h('button', { class: 'icon-btn danger', type: 'button', 'aria-label': 'حذف ' + it.name, 'data-fk': 'c-' + it.productId + '-rm', onclick: () => setCart(it.productId, -it.quantity) }, icon('trash')));
+  };
+
+  const draw = () => {
+    const items = state.cart.items;
+    if (!items.length) {
+      content.replaceChildren(emptyState({
+        title: 'سبد خرید شما خالی است', text: 'محصول مورد نظرتان را پیدا کنید و به سبد اضافه کنید.',
+        action: h('a', { class: 'btn btn-primary', href: '#/' }, 'دیدن محصولات'),
+      }));
+      return;
+    }
+    const gross = items.reduce((s, i) => s + i.price * i.quantity, 0);
+    const pay = items.reduce((s, i) => s + finalPrice(i) * i.quantity, 0);
+    const clear = async () => {
+      if (!(await askConfirm({ title: 'خالی کردن سبد خرید', text: 'همه‌ی کالاهای سبد حذف می‌شوند. ادامه می‌دهید؟', ok: 'خالی کن', danger: true }))) return;
+      try { await api('/cart/delete', { method: 'DELETE' }); state.cart = { items: [] }; notifyCart(); toast('سبد خرید خالی شد.'); }
+      catch (e) { toast(e.message, 'error'); }
+    };
+    content.replaceChildren(h('div', { class: 'cart-layout' },
+      h('ul', { class: 'cart-lines' }, items.map(line)),
+      h('aside', { class: 'summary', 'aria-label': 'خلاصه‌ی سفارش' },
+        h('h2', {}, 'خلاصه‌ی سبد'),
+        h('div', { class: 'sum-row' }, h('span', {}, 'تعداد کالا'), h('span', {}, faNum(cartCount()))),
+        h('div', { class: 'sum-row' }, h('span', {}, 'جمع قیمت‌ها'), h('span', {}, money(gross))),
+        gross > pay ? h('div', { class: 'sum-row save' }, h('span', {}, 'سود شما از تخفیف'), h('span', {}, money(gross - pay))) : null,
+        h('div', { class: 'sum-row total' }, h('span', {}, 'مبلغ قابل پرداخت'), h('span', {}, money(pay))),
+        h('button', { class: 'btn btn-primary btn-block', type: 'button', disabled: true, 'aria-describedby': 'checkout-note' }, 'ثبت سفارش'),
+        h('p', { class: 'note', id: 'checkout-note' }, 'ثبت و پرداخت سفارش هنوز در سرور پیاده‌سازی نشده است.'),
+        h('button', { class: 'btn btn-quiet-danger btn-sm', type: 'button', onclick: clear }, icon('trash'), 'خالی کردن سبد'))));
+  };
+  pageSub = draw;
+  draw();
+  loadCart().then(() => { if (root.isConnected) notifyCart(); });   // هم‌گام‌سازی با سرور
+  return root;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ۱۴) بخش مدیریت: افزودن محصول و فهرست کاربران
+   ═══════════════════════════════════════════════════════════════ */
+function tagInput(onChange) {
+  const tags = [];
+  const list = h('ul', { class: 'chips' });
+  const input = h('input', { type: 'text', id: 'p-tags', placeholder: 'برچسب را بنویسید و Enter بزنید', 'aria-describedby': 'p-tags-hint' });
+  const redraw = () => list.replaceChildren(...tags.map((t, i) => h('li', {}, h('span', {}, t),
+    h('button', { type: 'button', 'aria-label': 'حذف برچسب ' + t, onclick: () => { tags.splice(i, 1); redraw(); onChange(); } }, icon('x')))));
+  const add = raw => {
+    raw.split(/[,،\n]+/).map(s => s.trim()).filter(Boolean).forEach(t => { if (!tags.some(x => norm(x) === norm(t))) tags.push(t); });
+    input.value = ''; redraw(); onChange();
+  };
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ',' || e.key === '،') { e.preventDefault(); if (input.value.trim()) add(input.value); }
+    else if (e.key === 'Backspace' && !input.value && tags.length) { tags.pop(); redraw(); onChange(); }
+  });
+  input.addEventListener('blur', () => { if (input.value.trim()) add(input.value); });
+  return {
+    input, tags,
+    root: h('div', { class: 'field' },
+      h('label', { for: 'p-tags' }, 'برچسب‌ها'),
+      h('div', { class: 'tag-input' }, list, input),
+      h('p', { class: 'hint', id: 'p-tags-hint' }, 'با Enter یا ویرگول جدا کنید؛ از روی برچسب‌ها می‌توان جست‌وجو و فیلتر کرد.')),
+    clear() { tags.length = 0; input.value = ''; redraw(); },
+  };
+}
+
+function panelAddProduct() {
+  const f = {
+    name: field({ id: 'p-name', label: 'نام محصول' }),
+    shortDesc: field({ id: 'p-short', label: 'توضیح کوتاه', hint: 'روی کارت محصول نمایش داده می‌شود.' }),
+    longDesc: field({ id: 'p-long', label: 'توضیح کامل', rows: 5 }),
+    price: field({ id: 'p-price', label: 'قیمت (' + CURRENCY + ')', ltr: true, inputmode: 'numeric', placeholder: '1200000' }),
+    discount: field({ id: 'p-discount', label: 'تخفیف (درصد)', ltr: true, inputmode: 'numeric', value: '0', hint: 'عددی بین ۰ تا ۱۰۰' }),
+    images: field({ id: 'p-images', label: 'آدرس تصویر', ltr: true, placeholder: 'https://…', hint: 'لینک مستقیم عکس. برای چند عکس، لینک‌ها را با ویرگول جدا کنید.' }),
+  };
+  const tags = tagInput(drawPreview);
+  const previewBox = h('div');
+  const formErr = h('p', { class: 'form-error', role: 'alert', hidden: true });
+  const btn = h('button', { class: 'btn btn-primary', type: 'submit' }, icon('plus'), 'افزودن محصول');
+
+  const num = (el, fallback = 0) => { const n = toInt(el.input.value); return Number.isNaN(n) ? fallback : n; };
+  function draft() {
+    return normProduct({
+      name: f.name.input.value.trim(), shortDesc: f.shortDesc.input.value.trim(), longDesc: f.longDesc.input.value.trim(),
+      price: num(f.price), discount: num(f.discount), images: f.images.input.value.trim(), tags: [...tags.tags],
+    });
+  }
+  function drawPreview() { previewBox.replaceChildren(productCard(draft(), { preview: true })); }
+  Object.values(f).forEach(x => x.input.addEventListener('input', drawPreview));
+  f.price.input.addEventListener('input', () => {
+    const n = toInt(f.price.input.value);
+    f.price.root.querySelector('.hint, .price-hint') || f.price.root.insertBefore(h('p', { class: 'hint price-hint' }), f.price.err);
+    f.price.root.querySelector('.price-hint').textContent = Number.isNaN(n) || !n ? '' : money(n);
+  });
+  drawPreview();
+
+  const form = h('form', { class: 'form-col', novalidate: true, onsubmit: async e => {
+    e.preventDefault();
+    const price = toInt(f.price.input.value), discount = toInt(f.discount.input.value || '0');
+    const errors = {
+      name: f.name.input.value.trim() ? '' : 'نام محصول را وارد کنید.',
+      price: Number.isNaN(price) || price <= 0 || price > 2000000000 ? 'قیمت را به‌صورت عدد صحیح و بزرگ‌تر از صفر وارد کنید.' : '',
+      discount: Number.isNaN(discount) || discount > 100 ? 'تخفیف باید عددی صحیح بین ۰ تا ۱۰۰ باشد.' : '',
+    };
+    let first = null;
+    for (const k of Object.keys(errors)) { f[k].setError(errors[k]); if (errors[k] && !first) first = k; }
+    if (first) { f[first].input.focus(); return; }
+    await submitting(btn, formErr, async () => {
+      await api('/product/add', { method: 'POST', body: {
+        name: f.name.input.value.trim(), shortDesc: f.shortDesc.input.value.trim(), longDesc: f.longDesc.input.value.trim(),
+        price, discount, images: f.images.input.value.trim(), tags: [...tags.tags],
+      } });
+      toast('محصول افزوده شد.');
+      form.reset(); f.discount.input.value = '0'; tags.clear(); drawPreview();
+      f.price.root.querySelector('.price-hint') && (f.price.root.querySelector('.price-hint').textContent = '');
+      f.name.input.focus();
+      loadProducts();
+    });
+  } },
+    formErr, f.name.root, f.shortDesc.root, f.longDesc.root,
+    h('div', { class: 'two' }, f.price.root, f.discount.root),
+    f.images.root, tags.root, h('div', {}, btn));
+
+  return h('div', { class: 'admin-add' }, form,
+    h('aside', { class: 'preview', 'aria-label': 'پیش‌نمایش' }, h('h2', {}, 'پیش‌نمایش کارت محصول'), previewBox));
+}
+
+function panelUsers() {
+  const box = h('div');
+  const draw = () => {
+    let q = '';
+    const tbody = h('tbody');
+    const count = h('p', { class: 'muted', role: 'status' });
+    const rows = () => {
+      const list = state.users.filter(u => !q || norm([u.firstname, u.lastname, u.username, u.phone, u.address].join(' ')).includes(q));
+      count.textContent = faNum(list.length) + ' از ' + faNum(state.users.length) + ' کاربر';
+      tbody.replaceChildren(...(list.length ? list.map(u => h('tr', {},
+        h('td', {}, (u.firstname || '') + ' ' + (u.lastname || '')),
+        h('td', { class: 'ltr' }, u.username),
+        h('td', { class: 'ltr' }, u.phone || '—'),
+        h('td', {}, u.address || '—'),
+        h('td', {}, h('span', { class: 'role' + (u.admin ? ' admin' : '') }, u.admin ? 'مدیر' : 'کاربر'))))
+        : [h('tr', {}, h('td', { colspan: 5, class: 'muted' }, 'کاربری با این مشخصات پیدا نشد.'))]));
+    };
+    const search = h('input', { class: 'input', type: 'search', 'aria-label': 'جست‌وجوی کاربر', placeholder: 'جست‌وجو در نام، نام کاربری، تلفن…' });
+    search.addEventListener('input', () => { q = norm(search.value.trim()); rows(); });
+    rows();
+    box.replaceChildren(
+      h('div', { class: 'table-tools' }, search, count,
+        h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: () => load(true) }, 'به‌روزرسانی')),
+      h('div', { class: 'table-wrap' }, h('table', {},
+        h('thead', {}, h('tr', {}, ['نام و نام خانوادگی', 'نام کاربری', 'تلفن', 'آدرس', 'نقش'].map(t => h('th', { scope: 'col' }, t)))), tbody)));
+  };
+  async function load(force) {
+    if (state.users && !force) { draw(); return; }
+    box.replaceChildren(h('div', { class: 'skeleton', style: 'min-height:200px' }));
+    try { state.users = await api('/auth/users'); if (box.isConnected) draw(); }
+    catch (e) {
+      if (box.isConnected) box.replaceChildren(emptyState({ title: 'فهرست کاربران بارگذاری نشد', text: e.message,
+        action: h('button', { class: 'btn btn-primary', type: 'button', onclick: () => load(true) }, 'تلاش دوباره') }));
+    }
+  }
+  load(false);
+  return box;
+}
+
+function viewAdmin(tab) {
+  const t = (id, label, ic) => h('a', { class: 'tab', href: '#/admin/' + id, 'aria-current': tab === id ? 'page' : null }, icon(ic), label);
+  return h('div', { class: 'wrap page' },
+    h('h1', {}, 'مدیریت فروشگاه'),
+    h('nav', { class: 'tabs', 'aria-label': 'بخش‌های مدیریت' }, t('add', 'افزودن محصول', 'box'), t('users', 'کاربران', 'users')),
+    tab === 'users' ? panelUsers() : panelAddProduct());
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ۱۵) صفحات خطا و مسیریابی (بر پایه‌ی # در آدرس)
+   ═══════════════════════════════════════════════════════════════ */
+const viewForbidden = () => h('div', { class: 'wrap page' }, emptyState({
+  title: 'دسترسی ندارید', text: 'این بخش فقط برای مدیر فروشگاه است.', action: h('a', { class: 'btn btn-primary', href: '#/' }, 'بازگشت به محصولات') }));
+const viewNotFound = () => h('div', { class: 'wrap page' }, emptyState({
+  title: 'صفحه پیدا نشد', text: 'آدرسی که باز کردید وجود ندارد.', action: h('a', { class: 'btn btn-primary', href: '#/' }, 'بازگشت به محصولات') }));
+
+let lastPath = null;
+function route() {
+  const path = currentPath();
+  pageSub = null;
+  const needLogin = () => {
+    if (state.token) return null;
+    goLogin('برای ادامه، ابتدا وارد حساب خود شوید.');
+    return h('div');
+  };
+  let node, title = '';
+  if (path === '/') { node = viewHome(); }
+  else if (path === '/login') { node = viewLogin(); title = 'ورود'; }
+  else if (path === '/register') { node = viewRegister(); title = 'ثبت‌نام'; }
+  else if (path === '/cart') { node = needLogin() || viewCart(); title = 'سبد خرید'; }
+  else if (path === '/admin' || path === '/admin/add' || path === '/admin/users') {
+    node = needLogin() || (state.user && state.user.admin ? viewAdmin(path === '/admin/users' ? 'users' : 'add') : viewForbidden());
+    title = 'مدیریت';
+  } else { node = viewNotFound(); title = 'صفحه پیدا نشد'; }
+
+  document.title = title ? title + ' · ' + STORE_NAME : STORE_NAME;
+  $('#main').replaceChildren(node);
+  renderHeader();
+  if (path !== lastPath) {
+    window.scrollTo(0, 0);
+    $('#main').focus({ preventScroll: true });
+    lastPath = path;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ۱۶) راه‌اندازی
+   ═══════════════════════════════════════════════════════════════ */
+async function boot() {
+  restoreSession();
+  $('#footer-text').textContent = '© ' + new Date().toLocaleDateString('fa-IR', { year: 'numeric' }) + ' ' + STORE_NAME;
+  $('#skip').addEventListener('click', () => $('#main').focus());
+  /* بستن پنجره‌ها با کلیک روی پس‌زمینه */
+  ['product-dialog', 'confirm-dialog'].forEach(id => {
+    const d = document.getElementById(id);
+    d.addEventListener('click', e => { if (e.target === d) d.close(); });
+  });
+  window.addEventListener('hashchange', route);
+  if (window.matchMedia) {   // اگر کاربر تم را دستی انتخاب نکرده، تغییر تم سیستم را دنبال کن
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (!LS.get('theme')) { document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light'); renderHeader(); }
+    });
+  }
+  route();
+  const jobs = [loadProducts()];
+  if (state.token) jobs.push(loadCart().then(notifyCart), refreshProfile());
+  await Promise.all(jobs);
+}
+boot();
+})();
+</script>
+</body>
+</html>
