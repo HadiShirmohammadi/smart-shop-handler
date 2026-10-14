@@ -1,0 +1,71 @@
+/* Bilingual layout + language/direction controls.
+   Direction-specific layout is applied through [dir='rtl'] overrides that mirror
+   the physical positioning used by the base stylesheet. */
+
+body { transition: background-color .25s ease, color .25s ease; }
+
+/* ---- Language toggle (mirrors .theme-toggle) ---- */
+.lang-toggle { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: #fff; color: #3a4a34; border-radius: 7px; padding: 8px 12px; font-size: 11px; font-weight: 500; }
+.lang-toggle:hover { background: #f5f6f0; }
+.lang-toggle .lang-code { font-weight: 700; letter-spacing: .4px; }
+[data-theme='dark'] .lang-toggle { background: #2c3a2a; color: #dfebce; border-color: #4b5d41; }
+[data-theme='dark'] .lang-toggle:hover { background: #3c4e34; }
+
+/* ---- Chat message direction control ---- */
+.chat-direction { margin-top: 13px; padding-top: 13px; border-top: 1px dashed var(--line); }
+.chat-direction > span { display: block; font-size: 10px; color: #929b84; margin-bottom: 8px; }
+.segmented { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; background: #fff; }
+.segmented button { padding: 7px 12px; font-size: 10px; font-weight: 600; color: #78836d; background: none; border-radius: 0; }
+.segmented button + button { border-inline-start: 1px solid var(--line); }
+.segmented button.active { background: #eef2e9; color: #315139; }
+[data-theme='dark'] .segmented { background: #1f2d23; }
+[data-theme='dark'] .segmented button { color: #c7d4bd; }
+[data-theme='dark'] .segmented button.active { background: #456440; color: #fff; }
+
+/* Message bubbles: honor a chosen direction; the base rules already align the
+   bubble to the correct side via align-self + logical text alignment. */
+.message.message-rtl { text-align: right; }
+.message.message-ltr { text-align: left; }
+.message.message-rtl small,
+.message.message-ltr small { text-align: inherit; }
+
+/* ---- RTL page direction ---- */
+[dir='rtl'] body { text-align: right; }
+[dir='rtl'] .sidebar { inset: 0 0 0 auto; border-right: 0; border-left: 1px solid var(--line); }
+[dir='rtl'] .main-shell { margin-left: 0; margin-right: 244px; }
+[dir='rtl'] .brand { padding-left: 0; padding-right: 8px; }
+[dir='rtl'] .brand-dot { margin-left: 0; margin-right: -7px; }
+[dir='rtl'] .sidebar-label { padding-left: 0; padding-right: 10px; }
+[dir='rtl'] .nav-arrow,
+[dir='rtl'] .count,
+[dir='rtl'] .small-badge,
+[dir='rtl'] .account-button > svg { margin-left: 0; margin-right: auto; }
+[dir='rtl'] .account-button { text-align: right; }
+[dir='rtl'] .hero-copy { padding: 37px 39px 32px 0; }
+[dir='rtl'] .main-shell footer > span:last-child { margin-left: 0; margin-right: auto; }
+[dir='rtl'] .admin-product .icon-button { margin-left: 0; margin-right: auto; }
+[dir='rtl'] .message.user { align-self: flex-start; }
+[dir='rtl'] .message.assistant { align-self: flex-end; }
+
+/* Keep Latin brand text intact even while the page is right-to-left. */
+[dir='rtl'] .brand,
+[dir='rtl'] .footer-brand,
+[dir='rtl'] .big,
+[dir='rtl'] .small-badge { unicode-bidi: isolate; }
+
+/* Match the 1150px shell adjustments (margin-left: 210px in the base sheet). */
+@media(max-width:1150px) {
+  [dir='rtl'] .main-shell { margin-left: 0; margin-right: 210px; }
+  [dir='rtl'] .hero-copy { padding-left: 0; padding-right: 27px; }
+}
+@media(max-width:900px) {
+  [dir='rtl'] .main-shell { margin-left: 0; margin-right: 180px; }
+  [dir='rtl'] .hero-copy { padding: 30px 25px 24px 0; }
+}
+/* Match the 650px mobile shell where the sidebar becomes a full-width top bar. */
+@media(max-width:650px) {
+  [dir='rtl'] .main-shell { margin-right: 0; }
+  [dir='rtl'] .sidebar { border-left: 0; border-bottom: 1px solid var(--line); }
+  [dir='rtl'] .hero-copy { padding: 25px 22px 23px 0; }
+  .lang-toggle span:not(.lang-code) { display: none; }
+}
