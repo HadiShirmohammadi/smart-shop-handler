@@ -43,6 +43,9 @@ public class ProductController {
         if (userOptional.isPresent()){
             User user = userOptional.get();
             if (Boolean.TRUE.equals(user.getAdmin())){
+                if (req.getPrice() < 0 || req.getDiscount() < 0 || req.getDiscount() > 100) {
+                    return ResponseEntity.badRequest().body("Price must be non-negative and discount must be between 0 and 100 percent");
+                }
                 Product product = new Product();
                 product.setName(req.getName());
                 product.setShortDesc(req.getShortDesc());

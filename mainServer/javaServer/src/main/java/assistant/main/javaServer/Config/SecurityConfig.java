@@ -3,6 +3,7 @@ package assistant.main.javaServer.Config;
 
 import java.util.List;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -36,12 +37,18 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // آدرس فرانت‌اند
+
         configuration.setAllowedOrigins(
-                List.of("http://127.0.0.1:5500")
+                List.of(
+                        "http://127.0.0.1:5500",
+                        "http://127.0.0.1:5173",
+                        "http://localhost:5173",
+                        "http://127.0.0.1:4173",
+                        "http://localhost:4173"
+                )
         );
 
-        // متدهای مجاز
+
         configuration.setAllowedMethods(
                 List.of(
                         "GET",
@@ -53,12 +60,11 @@ public class SecurityConfig {
                 )
         );
 
-        // هدرهای مجاز، از جمله Authorization برای JWT
+
         configuration.setAllowedHeaders(
                 List.of("*")
         );
 
-        // اجازه ارسال کوکی در صورت نیاز
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
@@ -93,6 +99,8 @@ public class SecurityConfig {
                                 "/error"
                         ).permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/product/images/*").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/product/images").hasRole("ADMIN")
                         .requestMatchers("/api/bot/**").permitAll()
 
                         .requestMatchers(
