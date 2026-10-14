@@ -92,6 +92,12 @@ public class ProductController {
         return productService.getAllProduct();
     }
 
+    //Get Product
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> getProduct(@PathVariable Long id){
+        return ResponseEntity.ok(productService.getProduct(id));
+    }
+
     //Search Product
     @GetMapping("/search/{key}")
     public List<Product> searchProduct(@PathVariable String key){

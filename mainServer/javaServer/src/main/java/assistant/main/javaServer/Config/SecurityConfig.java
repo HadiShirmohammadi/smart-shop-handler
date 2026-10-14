@@ -102,7 +102,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/product/images/*").permitAll()
                         .requestMatchers(HttpMethod.POST, "/product/images").hasRole("ADMIN")
                         .requestMatchers("/api/bot/**").permitAll()
-
+                        .requestMatchers("/api/ai/**").permitAll()
+                        .requestMatchers("/search/**").permitAll()
                         .requestMatchers(
                                 "/auth/register",
                                 "/auth/login"
@@ -110,7 +111,7 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/product/search/**",
-                                "/product/products"
+                                "/product/**"
                         ).permitAll()
 
                         .anyRequest().authenticated()

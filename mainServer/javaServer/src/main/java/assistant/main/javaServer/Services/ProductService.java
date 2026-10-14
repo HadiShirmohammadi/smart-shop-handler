@@ -29,6 +29,11 @@ public class ProductService {
                 .map(ProductResponse::new)
                 .toList();
     }
+    // Get Product
+    public Product getProduct(Long id){
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found!"));
+    }
     // Search Products
     public List<Product> searchProducts(String q) {
         if (q == null || q.isBlank()) return productRepository.findAll();

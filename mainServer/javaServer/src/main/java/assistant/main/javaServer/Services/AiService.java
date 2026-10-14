@@ -6,12 +6,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class AiService {
-
+     private final String sysPm;
      private final RestClient restClient;
      private final String apiKey;
 
@@ -21,9 +24,15 @@ public class AiService {
      ){
           this.restClient = RestClient.builder().baseUrl(apiUrl).build();
           this.apiKey = apiKey;
+          try {
+               this.sysPm = Files.readString(Path.of("text/sysPm.txt"));
+          } catch (IOException e) {
+               throw new RuntimeException("Error reading file:  " + e.getMessage());
+          }
      }
 
-     public String sendAi(String message, String sysPm){
+     public String sendAi(String message){
+
           Map<String,Object> request = Map.of(
                   "model", "openai/gpt-oss-20b",
                   "messages", List.of(

@@ -34,7 +34,6 @@ public class BotController {
             @RequestParam("message_id") Long messageId,
             @RequestParam(value = "username",required = false) String username,
             @RequestParam(value = "content", required = false) String text,
-            @RequestParam("system_prompt")String sysPm,
             @RequestPart(value = "file", required = false)MultipartFile file,
             @RequestParam("msg_type") String msgType){
         System.out.println("give file...");
@@ -49,7 +48,7 @@ public class BotController {
                 System.out.println("error in read file: " + e.getMessage());
             }
         }
-        String replyText = aiService.sendAi(text,sysPm);
+        String replyText = aiService.sendAi(text);
         System.out.println(replyText);
         Map<String,String> response = new HashMap<>();
         response.put("reply",replyText);
