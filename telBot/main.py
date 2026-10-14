@@ -3,28 +3,46 @@ import aiofiles
 import sys
 import logging
 from os import getenv
-
-from aiogram import Bot, Dispatcher, html
+from aiogram import Bot, Dispatcher, html, F
 from aiogram.client.default import DefaultBotProperties
 import aiohttp
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
-from aiogram.types import Message, ReactionTypeEmoji
-
+from aiogram.types import (
+    Message,
+    ReactionTypeEmoji,
+    CallbackQuery,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+    InlineQuery,
+    InlineQueryResultArticle,
+    InputTextMessageContent, reply_markup_union
+)
 TOKEN = getenv("BOT_TOKEN")
 JAVA_SERVER = getenv("JAVA_SERVER")
 dp = Dispatcher()
 
+# ------------- Connect to Spring Boot -------------
 
-@dp.message(CommandStart())
-async def command_start_handler(message: Message) -> None:
-    await message.react(reaction=[ReactionTypeEmoji(emoji="❤️")])
-    async with aiofiles.open("welcomeMessage.txt", mode="r", encoding="utf-8") as file:
-        welcome_content = await file.read()
-    await message.answer(welcome_content)
+async def api_get(path: str, params: dict | None = None):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{JAVA_SERVER}{path}", params=params) as resp:
+            resp.raise_for_status()
+            return await resp.json()
 
-@dp.message()
+
+async def api_post(path: str, data: dict):
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{JAVA_SERVER}{path}", json=data) as resp:
+            resp.raise_for_status()
+            return await resp.json()
+
+# ------------------ AI Handler ----------------------
+
 async def ai_handler(message: Message, bot : Bot) -> None:
+    content = message.caption or message.text or ""
     data = aiohttp.FormData()
     data.add_field("user_id", str(message.from_user.id))
     data.add_field("chat_id", str(message.chat.id))
@@ -32,7 +50,7 @@ async def ai_handler(message: Message, bot : Bot) -> None:
     data.add_field("username",str(message.from_user.username))
     data.add_field(
         "content",
-        message.caption or message.text or "",
+        content,
         content_type="text/plain"
     )
     if message.photo:
@@ -59,6 +77,125 @@ async def ai_handler(message: Message, bot : Bot) -> None:
             await message.answer("سرور در دسترس نیست")
 
 
+# ------------------- Keyboards ----------------------
+def main_menu() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="لیست محصولات")],
+            [KeyboardButton(text="جستجو")],
+        ],
+        resize_keyboard=True,
+    )
+
+
+def products_keyboard(products: list[dict]) -> InlineKeyboardMarkup:
+
+    rows = [
+        [InlineKeyboardButton(text=p["name"], callback_data=f"product:{p['id']}")]
+        for p in products
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+# ------------------- Handler ----------------------
+
+@dp.message(CommandStart())
+async def command_start_handler(message: Message) -> None:
+    await message.react(reaction=[ReactionTypeEmoji(emoji="❤️")])
+    async with aiofiles.open("welcomeMessage.txt", mode="r", encoding="utf-8") as file:
+        welcome_content = await file.read()
+    await message.answer(welcome_content,reply_markup=main_menu())
+
+@dp.message(F.text == "جستجو")
+async def shearch_handler(message: Message) -> None:
+    await message.reply("کلمه ای که می خوای جستجو بشه رو بفرست👇")
+
+@dp.message(F.text == "لیست محصولات")
+async def show_all_products(message: Message):
+    try:
+        products = await api_get("product/products")
+    except Exception:
+        await message.answer("خطا در ارتباط با سرور")
+        return
+    await message.answer("دسته بندی ها:", reply_markup=products_keyboard(products))
+
+
+@dp.callback_query(F.data.startswith("product:"))
+async def product_detail(callback: CallbackQuery):
+    product_id = callback.data.split(":")[1]
+    product = await api_get(f"product/{product_id}")
+    await callback.message.answer(f"{product['name']}\nقیمت: {product['price'] }\n توضیحات: {product['shortDesc']}")
+    await callback.answer()
+
+#------------------ search ---------------------
+
+@dp.inline_query()
+async def inline_search_handler(query: InlineQuery):
+    text = query.query.strip()
+    if text.startswith("search:"):
+        keyword = text.removeprefix("search:").strip()
+    else:
+        keyword = text
+    if not text:
+        await query.answer([],cache_time=1)
+        return
+    try:
+        products = await api_get(f"product/search/{keyword}")
+    except Exception as e:
+        await query.answer([],cache_time=1)
+        return
+    results = []
+    for p in products[:20]:
+        results.append(
+            InlineQueryResultArticle(
+                id=str(p["id"]),
+                title=p["name"],
+                description=f"{p['shortDesc']} | {p['price']} تومان ",
+                input_message_content=InputTextMessageContent(
+                    message_text=f"{p['name']}\n {p['shortDesc']} قیمت : {p['price']} تومان"
+                ),
+                thumbnail_url=None
+            )
+        )
+
+        await query.answer(results, cache_time=5, is_personal=True)
+
+
+@dp.message(F.text)
+async def ask_to_search(message: Message):
+    text = message.text.strip()
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                text="جستجو کنم برات؟؟",
+                switch_inline_query_current_chat=f"search: {text}"
+                ),
+                InlineKeyboardButton(
+                    text = "ارسال کن به AI",
+                    callback_data="send_ai"
+                )
+            ]
+        ]
+    )
+    await  message.reply(f"می خوام {text} رو جستجو کنم؟", reply_markup= keyboard)
+
+
+@dp.message(F.photo)
+async def photo_handler(message: Message, bot : Bot):
+    await ai_handler(message, bot)
+
+@dp.callback_query(F.data == "send_ai")
+async def send_ai_handler(callback: CallbackQuery, bot : Bot):
+    await callback.answer()
+
+    text = callback.message.reply_to_message
+    if text is None:
+        await callback.message.answer("پیام دریافت نشد ، دوباره بفرست")
+        return
+    await callback.message.delete()
+    await ai_handler(text, bot)
 
 async def main() -> None:
     bot = Bot(token=str(TOKEN), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -67,3 +204,6 @@ async def main() -> None:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     asyncio.run(main())
+
+
+
