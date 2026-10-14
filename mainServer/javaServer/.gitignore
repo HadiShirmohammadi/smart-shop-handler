@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Uploaded product images
+uploads/
+
+# Frontend dependencies
+node_modules/
+
+# Project archive
+mainServer.zip
+
+# Build output
+dist/

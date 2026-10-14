@@ -11,6 +11,13 @@
         }
         document.documentElement.dataset.theme = theme;
         document.documentElement.style.colorScheme = theme;
+        let lang;
+        try { lang = localStorage.getItem('gather-lang'); } catch {}
+        if (lang !== 'en' && lang !== 'fa') {
+          lang = (navigator.language || 'en').toLowerCase().startsWith('fa') ? 'fa' : 'en';
+        }
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
       })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
