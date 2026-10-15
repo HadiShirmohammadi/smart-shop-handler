@@ -367,6 +367,4 @@ The frontend tests are unit tests, not end-to-end tests. The Telegram bot has no
 
 ---
 
-## License
 
-No license has been chosen yet.
