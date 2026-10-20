@@ -91,4 +91,10 @@ public class CategoryService {
                 HttpStatus.NOT_FOUND, "Category Not Found!"));
     }
 
+    public void deleteCategory(Long id){
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Category Not Found!"));
+        categoryRepository.delete(category);
+    }
+
 }
