@@ -22,7 +22,7 @@ public class CategoryController {
     @PostMapping("/add")
     public ResponseEntity<CategoryNode> addCategory(@RequestBody CategoryRequest request){
         Category category = categoryService.create(request);
-        CategoryNode node = new CategoryNode(category.getName(), category.getId(), List.of());
+        CategoryNode node = new CategoryNode( category.getId() ,category.getName(),List.of());
         return ResponseEntity.status(HttpStatus.CREATED).body(node);
     }
 

@@ -101,6 +101,11 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/product/images/*").permitAll()
                         .requestMatchers(HttpMethod.POST, "/product/images").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/category/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/category/**").hasRole("ADMIN")
+//                        .requestMatchers("/category/add").hasRole("ADMIN")
+//                        .requestMatchers("/category/{id}/delete").hasRole("ADMIN")
+                        .requestMatchers("/category/**").permitAll()
                         .requestMatchers("/api/bot/**").permitAll()
                         .requestMatchers("/api/ai/**").permitAll()
                         .requestMatchers("/search/**").permitAll()

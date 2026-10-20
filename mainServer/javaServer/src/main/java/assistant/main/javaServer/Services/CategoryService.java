@@ -7,6 +7,7 @@ import assistant.main.javaServer.Entities.Product;
 import assistant.main.javaServer.Repository.CategoryRepository;
 import assistant.main.javaServer.Repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,10 @@ public class CategoryService {
     @Transactional
     public Category create(CategoryRequest request){
         Category category = new Category();
-        category.setName(request.name());
+        if(categoryRepository.existsByNameIgnoreCase(request.name().trim())){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Category Already exist!");
+        }
+        category.setName(request.name().trim());
         if (request.parentId() != null){
             Category parent = categoryRepository.findById(request.parentId())
                     .orElseThrow(() -> new ResponseStatusException(
@@ -33,7 +37,11 @@ public class CategoryService {
             ));
             category.setParent(parent);
         }
-        return categoryRepository.save(category);
+        try {
+            return categoryRepository.saveAndFlush(category);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Category already exists!");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -42,7 +50,7 @@ public class CategoryService {
 
         Map<Long,CategoryNode> nodes = new HashMap<>();
         for (Category c : allCategory){
-            nodes.put(c.getId(), new CategoryNode(c.getName(), c.getId() , new ArrayList<>()));
+            nodes.put(c.getId(), new CategoryNode(c.getId(),c.getName(),new ArrayList<>()));
         }
         List<CategoryNode> roots = new ArrayList<>();
         for (Category c : allCategory){
