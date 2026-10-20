@@ -1,5 +1,6 @@
 package assistant.main.javaServer.Dto;
 
+import assistant.main.javaServer.Entities.Category;
 import assistant.main.javaServer.Entities.Product;
 import assistant.main.javaServer.Entities.Tag;
 
@@ -13,16 +14,18 @@ public class ProductResponse {
     private int price;
     private int discount;
     private String images;
+    private Category category;
     private List<String> tags;
 
     //Constructor
-    public ProductResponse(String name, String shortDesc, String longDesc, int price, int discount, String images, List<String> tags) {
+    public ProductResponse(String name, String shortDesc, String longDesc, int price, int discount, String images, Category category, List<String> tags) {
         this.name = name;
         this.shortDesc = shortDesc;
         this.longDesc = longDesc;
         this.price = price;
         this.discount = discount;
         this.images = images;
+        this.category = category;
         this.tags = tags;
     }
 
@@ -34,6 +37,7 @@ public class ProductResponse {
         this.price = p.getPrice();
         this.discount = p.getDiscount();
         this.images = p.getImages();
+        this.category = p.getCategory();
         this.tags = p.getTags().stream().map(Tag::getName).toList();
     }
 
@@ -93,6 +97,14 @@ public class ProductResponse {
 
     public void setImages(String images) {
         this.images = images;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public List<String> getTags() {

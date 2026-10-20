@@ -1,5 +1,7 @@
 package assistant.main.javaServer.Dto;
 
+import assistant.main.javaServer.Entities.Category;
+
 import java.util.List;
 
 public class ProductRequest {
@@ -9,6 +11,7 @@ public class ProductRequest {
     private int price;
     private int discount;
     private String images;
+    private Category category;
     private List<String> tags;
 
     public String getName() { return name; }
@@ -28,6 +31,14 @@ public class ProductRequest {
 
     public String getImages() { return images; }
     public void setImages(String images) { this.images = images; }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 
     public List<String> getTags() { return tags; }
     public void setTags(List<String> tags) { this.tags = tags; }

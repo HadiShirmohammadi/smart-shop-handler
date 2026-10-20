@@ -3,10 +3,12 @@ package assistant.main.javaServer.Controllers;
 
 import assistant.main.javaServer.Dto.ProductRequest;
 import assistant.main.javaServer.Dto.ProductResponse;
+import assistant.main.javaServer.Entities.Category;
 import assistant.main.javaServer.Entities.Product;
 import assistant.main.javaServer.Entities.Tag;
 import assistant.main.javaServer.Entities.User;
 import assistant.main.javaServer.Repository.ProductRepository;
+import assistant.main.javaServer.Services.CategoryService;
 import assistant.main.javaServer.Services.ProductService;
 import assistant.main.javaServer.Services.TagService;
 import assistant.main.javaServer.Services.UserService;
@@ -35,6 +37,9 @@ public class ProductController {
     @Autowired
     private TagService tagService;
 
+    @Autowired
+    private CategoryService categoryService;
+
     // Add Product
     @PostMapping("/add")
     public ResponseEntity<?> addProduct(@RequestBody ProductRequest req, Authentication authentication){
@@ -53,6 +58,10 @@ public class ProductController {
                 product.setPrice(req.getPrice());
                 product.setDiscount(req.getDiscount());
                 product.setImages(req.getImages());
+                if (req.getCategory() != null){
+                    Category category = categoryService.findCategory(req.getCategory().getId());
+                    product.setCategory(category);
+                }
                 Set<Tag> tagSet = new HashSet<>();
                 if (req.getTags() != null) {
                     for (String tagName : req.getTags()) {

@@ -1,5 +1,6 @@
 package assistant.main.javaServer.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -23,6 +24,10 @@ public class Product {
     private int discount;
     @Column
     private String images;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    @JsonIgnore
+    private Category category;
     @ManyToMany
     @JoinTable(
             name = "product_tag",
@@ -85,6 +90,14 @@ public class Product {
 
     public void setImages(String images) {
         this.images = images;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public Set<Tag> getTags() {

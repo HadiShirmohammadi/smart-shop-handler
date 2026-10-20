@@ -41,5 +41,9 @@ public class ProductService {
         return productRepository
                 .findDistinctByNameContainingIgnoreCaseOrTags_NameContainingIgnoreCase(key, key);
     }
+    // Search by Category
+    public List<Product> findByCategory(List<Long> id){
+        return productRepository.findByCategoryIdIn(id);
+    }
 
 }
