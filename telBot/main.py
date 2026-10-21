@@ -1,4 +1,6 @@
 import asyncio
+import json
+
 import aiofiles
 import sys
 import logging
@@ -7,6 +9,7 @@ from aiogram import Bot, Dispatcher, html, F
 from aiogram.client.default import DefaultBotProperties
 import aiohttp
 from aiogram.enums import ParseMode
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart
 from aiogram.types import (
     Message,
@@ -24,6 +27,9 @@ TOKEN = getenv("BOT_TOKEN")
 JAVA_SERVER = getenv("JAVA_SERVER")
 dp = Dispatcher()
 
+# ------------- Welcome Text -------------
+with open("welcomeMessage.txt", "r", encoding="utf-8") as file:
+    welcome_content = file.read()
 # ------------- Connect to Spring Boot -------------
 
 async def api_get(path: str, params: dict | None = None):
@@ -81,50 +87,105 @@ async def ai_handler(message: Message, bot : Bot) -> None:
 def main_menu() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="لیست محصولات")],
+            [KeyboardButton(text="لیست دسته بندی ها")],
             [KeyboardButton(text="جستجو")],
         ],
         resize_keyboard=True,
     )
 
 
-def products_keyboard(products: list[dict]) -> InlineKeyboardMarkup:
+def categories_keyboard(category: list[dict]) -> InlineKeyboardMarkup:
 
     rows = [
-        [InlineKeyboardButton(text=p["name"], callback_data=f"product:{p['id']}")]
-        for p in products
+        [InlineKeyboardButton(text=key["name"], callback_data=f"child:{key['id']}")]
+        for key in category
     ]
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
+def categories_child_keyboard(category: list[dict], id) -> InlineKeyboardMarkup:
 
+    rows = [
+        [InlineKeyboardButton(text=key["name"], callback_data=f"products:{key['id']}:{id}")]
+        for key in category
+    ]
+    rows.append([InlineKeyboardButton(text="⬅️ بازگشت", callback_data="لیست دسته بندی ها")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+def products_keyboard(products: list[dict],child_id) -> InlineKeyboardMarkup:
+
+    rows = [
+        [InlineKeyboardButton(text=key["name"], callback_data=f"child:{key['id']}")]
+        for key in products
+    ]
+    rows.append([InlineKeyboardButton(text="⬅️ بازگشت", callback_data=f"child:{child_id}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 # ------------------- Handler ----------------------
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     await message.react(reaction=[ReactionTypeEmoji(emoji="❤️")])
-    async with aiofiles.open("welcomeMessage.txt", mode="r", encoding="utf-8") as file:
-        welcome_content = await file.read()
     await message.answer(welcome_content,reply_markup=main_menu())
 
 @dp.message(F.text == "جستجو")
 async def shearch_handler(message: Message) -> None:
     await message.reply("کلمه ای که می خوای جستجو بشه رو بفرست👇")
 
-@dp.message(F.text == "لیست محصولات")
-async def show_all_products(message: Message):
+@dp.message(F.text == "لیست دسته بندی ها")
+async def show_all_category(message: Message):
     try:
-        products = await api_get("product/products")
+        category = await api_get("category/tree")
     except Exception:
         await message.answer("خطا در ارتباط با سرور")
         return
-    await message.answer("دسته بندی ها:", reply_markup=products_keyboard(products))
+    await message.answer("دسته بندی ها:", reply_markup=categories_keyboard(category))
+
+@dp.callback_query(F.data.startswith("لیست دسته بندی ها"))
+async def show_all_category(callback: CallbackQuery):
+    try:
+        category = await api_get("category/tree")
+    except Exception:
+        await callback.message.answer("خطا در ارتباط با سرور")
+        await callback.answer()
+        return
+    try:
+        await callback.message.edit_text("دسته بندی ها:", reply_markup=categories_keyboard(category))
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
+    await callback.answer()
 
 
-@dp.callback_query(F.data.startswith("product:"))
+@dp.callback_query(F.data.startswith("child:"))
+async def child_detail(callback: CallbackQuery):
+    category_id = callback.data.split(":")[1]
+    try:
+        categories = await api_get(f"category/{category_id}/children")
+    except Exception:
+        await callback.message.answer("خطا در ارتباط با سرور")
+        await callback.answer()
+        return
+    try:
+        await callback.message.edit_text("دسته بندی ها:", reply_markup=categories_child_keyboard(categories,category_id))
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
+    await callback.answer()
+
+@dp.callback_query(F.data.startswith("products:"))
 async def product_detail(callback: CallbackQuery):
-    product_id = callback.data.split(":")[1]
-    product = await api_get(f"product/{product_id}")
-    await callback.message.answer(f"{product['name']}\nقیمت: {product['price'] }\n توضیحات: {product['shortDesc']}")
+    child_id = callback.data.split(":")[1]
+    parent_id = callback.data.split(":")[2]
+    try:
+        products = await api_get(f"category/{child_id}/products")
+    except Exception:
+        await callback.message.answer("خطا در ارتباط با سرور")
+        await callback.answer()
+        return
+    try:
+        await callback.message.edit_text("محصولات این دسته بندی:", reply_markup=products_keyboard(products,parent_id))
+    except TelegramBadRequest as e:
+        if "message is not modified" not in str(e):
+            raise
     await callback.answer()
 
 #------------------ search ---------------------
