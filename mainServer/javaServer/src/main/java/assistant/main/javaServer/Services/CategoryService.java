@@ -93,10 +93,17 @@ public class CategoryService {
         }
         return result;
     }
+
     public Category findCategory(Long id){
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "Category Not Found!"));
+    }
+
+    public List<Category> getChildrenCategory(Long parentId){
+        Category parentCategory = categoryRepository.findById(parentId)
+                .orElseThrow(() -> new ResponseStatusException( HttpStatus.NOT_FOUND,"Category Not Found!"));
+        return parentCategory.getChildren();
     }
 
     public void deleteCategory(Long id){

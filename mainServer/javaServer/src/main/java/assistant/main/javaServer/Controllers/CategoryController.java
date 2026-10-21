@@ -37,6 +37,13 @@ public class CategoryController {
     public List<Product> products(@PathVariable Long id){
         return categoryService.getProducts(id);
     }
+
+    // Get Children
+    @GetMapping("/{id}/children")
+    public List<Category> getChildrenCategory(@PathVariable Long id){
+        return categoryService.getChildrenCategory(id);
+    }
+
     // Delete Category
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id){
